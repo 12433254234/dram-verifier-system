@@ -1,10 +1,10 @@
 module DRAM_CYCLE_CTRL (
-    input  logic        clk,		 //Тактовый сигнал 50 МГц
-    input  logic        rst_n,		 //Асинхронный сброс
-    input  logic [2:0]  data_ready,  // Сигнал-флаг от UART_INTERFACE
-    input  logic [7:0]  data_in,     // Данные из UART
-    output logic [7:0]  data_out,    // Данные для отправки обратно в ПК
-    output logic        tx_start,    // Импульс запуска отправки в ПК
+    input  logic        clk,		 //РўР°РєС‚РѕРІС‹Р№ СЃРёРіРЅР°Р» 50 РњР“С†
+    input  logic        rst_n,		 //РђСЃРёРЅС…СЂРѕРЅРЅС‹Р№ СЃР±СЂРѕСЃ
+    input  logic [2:0]  data_ready,  // РЎРёРіРЅР°Р»-С„Р»Р°Рі РѕС‚ UART_INTERFACE
+    input  logic [7:0]  data_in,     // Р”Р°РЅРЅС‹Рµ РёР· UART
+    output logic [7:0]  data_out,    // Р”Р°РЅРЅС‹Рµ РґР»СЏ РѕС‚РїСЂР°РІРєРё РѕР±СЂР°С‚РЅРѕ РІ РџРљ
+    output logic        tx_start,    // РРјРїСѓР»СЊСЃ Р·Р°РїСѓСЃРєР° РѕС‚РїСЂР°РІРєРё РІ РџРљ
     
     output logic [15:0] dram_addr,
     inout  wire [7:0]   dram_data,
@@ -13,7 +13,7 @@ module DRAM_CYCLE_CTRL (
     output logic        dram_we_n
 );
 
-	//---Состояния машины---//
+	//---РЎРѕСЃС‚РѕСЏРЅРёСЏ РјР°С€РёРЅС‹---//
     typedef enum logic [1:0] { 
         MEM_IDLE,
         MEM_ADDR_LATCH,
@@ -23,16 +23,16 @@ module DRAM_CYCLE_CTRL (
 
     mem_state_t state;
 
-    logic [23:0] addr_buffer;   // Буфер для накопления 3 байт адреса
-    logic [1:0]  byte_idx;      // Индекс принимаемого байта адреса
-    logic [7:0]  reg_wdata;     // Регистр защелки данных для записи
-    logic [7:0]  reg_rdata;     // Регистр защелки считанных из памяти данных
-    logic        dram_dir;      // Управление буфером шины (1 - вывод на чип, 0 - чтение)
+    logic [23:0] addr_buffer;   // Р‘СѓС„РµСЂ РґР»СЏ РЅР°РєРѕРїР»РµРЅРёСЏ 3 Р±Р°Р№С‚ Р°РґСЂРµСЃР°
+    logic [1:0]  byte_idx;      // РРЅРґРµРєСЃ РїСЂРёРЅРёРјР°РµРјРѕРіРѕ Р±Р°Р№С‚Р° Р°РґСЂРµСЃР°
+    logic [7:0]  reg_wdata;     // Р РµРіРёСЃС‚СЂ Р·Р°С‰РµР»РєРё РґР°РЅРЅС‹С… РґР»СЏ Р·Р°РїРёСЃРё
+    logic [7:0]  reg_rdata;     // Р РµРіРёСЃС‚СЂ Р·Р°С‰РµР»РєРё СЃС‡РёС‚Р°РЅРЅС‹С… РёР· РїР°РјСЏС‚Рё РґР°РЅРЅС‹С…
+    logic        dram_dir;      // РЈРїСЂР°РІР»РµРЅРёРµ Р±СѓС„РµСЂРѕРј С€РёРЅС‹ (1 - РІС‹РІРѕРґ РЅР° С‡РёРї, 0 - С‡С‚РµРЅРёРµ)
 
-    //---буфер данных---//
+    //---Р±СѓС„РµСЂ РґР°РЅРЅС‹С…---//
     assign dram_data = dram_dir ? reg_wdata : 8'hZZ;
     assign data_out  = reg_rdata;
-    assign dram_addr = addr_buffer[15:0]; // Младший сегмент адреса на шину
+    assign dram_addr = addr_buffer[15:0]; // РњР»Р°РґС€РёР№ СЃРµРіРјРµРЅС‚ Р°РґСЂРµСЃР° РЅР° С€РёРЅСѓ
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -58,7 +58,7 @@ module DRAM_CYCLE_CTRL (
                     byte_idx   <= '0;
 
                     if (data_ready == 3'h1) begin
-                        state <= MEM_ADDR_LATCH; // Переход к приему байт адреса
+                        state <= MEM_ADDR_LATCH; // РџРµСЂРµС…РѕРґ Рє РїСЂРёРµРјСѓ Р±Р°Р№С‚ Р°РґСЂРµСЃР°
                     end else if (data_ready == 3'h2) begin
                         state <= MEM_WRITE;
                     end else if (data_ready == 3'h3) begin
@@ -67,10 +67,10 @@ module DRAM_CYCLE_CTRL (
                 end
 
                 MEM_ADDR_LATCH: begin
-                    if (data_ready == 3'h4) begin // Пришел очередной байт адреса
+                    if (data_ready == 3'h4) begin // РџСЂРёС€РµР» РѕС‡РµСЂРµРґРЅРѕР№ Р±Р°Р№С‚ Р°РґСЂРµСЃР°
                         addr_buffer <= {addr_buffer[15:0], data_in};
                         if (byte_idx == 2) begin
-                            state <= MEM_IDLE; // Собрали все 3 байта адреса
+                            state <= MEM_IDLE; // РЎРѕР±СЂР°Р»Рё РІСЃРµ 3 Р±Р°Р№С‚Р° Р°РґСЂРµСЃР°
                         end else begin
                             byte_idx <= byte_idx + 1'b1;
                         end
@@ -78,10 +78,10 @@ module DRAM_CYCLE_CTRL (
                 end
 
                 MEM_WRITE: begin
-                    if (data_ready == 3'h4) begin // Пришел байт тестового вектора
+                    if (data_ready == 3'h4) begin // РџСЂРёС€РµР» Р±Р°Р№С‚ С‚РµСЃС‚РѕРІРѕРіРѕ РІРµРєС‚РѕСЂР°
                         reg_wdata  <= data_in;
-                        dram_dir   <= 1'b1; // Переключаем шину на вывод в чип
-                        dram_we_n  <= 1'b0; // Активируем сигналы управления DRAM
+                        dram_dir   <= 1'b1; // РџРµСЂРµРєР»СЋС‡Р°РµРј С€РёРЅСѓ РЅР° РІС‹РІРѕРґ РІ С‡РёРї
+                        dram_we_n  <= 1'b0; // РђРєС‚РёРІРёСЂСѓРµРј СЃРёРіРЅР°Р»С‹ СѓРїСЂР°РІР»РµРЅРёСЏ DRAM
                         dram_ras_n <= 1'b0;
                         dram_cas_n <= 1'b0;
                         state      <= MEM_IDLE;
@@ -89,13 +89,13 @@ module DRAM_CYCLE_CTRL (
                 end
 
                 MEM_READ: begin
-                    dram_dir   <= 1'b0; // Шина строго в Z-состоянии (на ввод)
-                    dram_we_n  <= 1'b1; // Чтение
-                    dram_ras_n <= 1'b0; // Удерживаем стробы таймингов
+                    dram_dir   <= 1'b0; // РЁРёРЅР° СЃС‚СЂРѕРіРѕ РІ Z-СЃРѕСЃС‚РѕСЏРЅРёРё (РЅР° РІРІРѕРґ)
+                    dram_we_n  <= 1'b1; // Р§С‚РµРЅРёРµ
+                    dram_ras_n <= 1'b0; // РЈРґРµСЂР¶РёРІР°РµРј СЃС‚СЂРѕР±С‹ С‚Р°Р№РјРёРЅРіРѕРІ
                     dram_cas_n <= 1'b0;
                     
-                    reg_rdata  <= dram_data; // Защелкиваем данные с физических ножек
-                    tx_start   <= 1'b1;      // Даем импульс UART-модулю на отправку в ПК
+                    reg_rdata  <= dram_data; // Р—Р°С‰РµР»РєРёРІР°РµРј РґР°РЅРЅС‹Рµ СЃ С„РёР·РёС‡РµСЃРєРёС… РЅРѕР¶РµРє
+                    tx_start   <= 1'b1;      // Р”Р°РµРј РёРјРїСѓР»СЊСЃ UART-РјРѕРґСѓР»СЋ РЅР° РѕС‚РїСЂР°РІРєСѓ РІ РџРљ
                     state      <= MEM_IDLE;
                 end
                 

@@ -4,30 +4,30 @@ module UART_INTERFACE (
     input  logic       uart_rxd,
     output logic       uart_txd,
     
-    output logic [2:0] data_ready, // Сигнал-флаг операции для контроллера памяти
-    output logic [7:0] data_in,     // Передаваемый байт данных/команды
+    output logic [2:0] data_ready, // РЎРёРіРЅР°Р»-С„Р»Р°Рі РѕРїРµСЂР°С†РёРё РґР»СЏ РєРѕРЅС‚СЂРѕР»Р»РµСЂР° РїР°РјСЏС‚Рё
+    output logic [7:0] data_in,     // РџРµСЂРµРґР°РІР°РµРјС‹Р№ Р±Р°Р№С‚ РґР°РЅРЅС‹С…/РєРѕРјР°РЅРґС‹
     
-    input  logic [7:0] data_out,    // Байт, прочитанный из DRAM
-    input  logic       tx_start     // Сигнал на отправку байта в ПК
+    input  logic [7:0] data_out,    // Р‘Р°Р№С‚, РїСЂРѕС‡РёС‚Р°РЅРЅС‹Р№ РёР· DRAM
+    input  logic       tx_start     // РЎРёРіРЅР°Р» РЅР° РѕС‚РїСЂР°РІРєСѓ Р±Р°Р№С‚Р° РІ РџРљ
 );
 
-    //---Состояния машины_--//
+    //---РЎРѕСЃС‚РѕСЏРЅРёСЏ РјР°С€РёРЅС‹_--//
     typedef enum logic [1:0] { 
-        IDLE,       // Ожидание старт-бита или команды
-        RECEIVE,    // Прием байта
-        TRANSMIT    // Отправка байта обратно в ПК
+        IDLE,       // РћР¶РёРґР°РЅРёРµ СЃС‚Р°СЂС‚-Р±РёС‚Р° РёР»Рё РєРѕРјР°РЅРґС‹
+        RECEIVE,    // РџСЂРёРµРј Р±Р°Р№С‚Р°
+        TRANSMIT    // РћС‚РїСЂР°РІРєР° Р±Р°Р№С‚Р° РѕР±СЂР°С‚РЅРѕ РІ РџРљ
     } state_t;
 
     state_t state;
 
-    logic [3:0]  bit_cnt;   // Счетчик бит в посылке
-    logic [8:0]  clk_div;   // Делитель частоты для формирования бодрейта (50МГц / 115200)
-    logic [7:0]  shift_reg; // Регистр сдвига данных
+    logic [3:0]  bit_cnt;   // РЎС‡РµС‚С‡РёРє Р±РёС‚ РІ РїРѕСЃС‹Р»РєРµ
+    logic [8:0]  clk_div;   // Р”РµР»РёС‚РµР»СЊ С‡Р°СЃС‚РѕС‚С‹ РґР»СЏ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ Р±РѕРґСЂРµР№С‚Р° (50РњР“С† / 115200)
+    logic [7:0]  shift_reg; // Р РµРіРёСЃС‚СЂ СЃРґРІРёРіР° РґР°РЅРЅС‹С…
     logic        tx_reg;
 
     assign uart_txd = tx_reg;
 
-    //---Машина состояний интерфейса_--//
+    //---РњР°С€РёРЅР° СЃРѕСЃС‚РѕСЏРЅРёР№ РёРЅС‚РµСЂС„РµР№СЃР°_--//
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             state      <= IDLE;
@@ -38,35 +38,35 @@ module UART_INTERFACE (
             bit_cnt    <= '0;
             shift_reg  <= '0;
         end else begin
-            data_ready <= '0; // Импульсный сброс флага готовности
+            data_ready <= '0; // РРјРїСѓР»СЊСЃРЅС‹Р№ СЃР±СЂРѕСЃ С„Р»Р°РіР° РіРѕС‚РѕРІРЅРѕСЃС‚Рё
 
             case (state)
                 IDLE: begin
                     tx_reg  <= 1'b1;
                     clk_div <= '0;
                     
-                    if (!uart_rxd) begin // Детект старт-бита (спад в 0)
+                    if (!uart_rxd) begin // Р”РµС‚РµРєС‚ СЃС‚Р°СЂС‚-Р±РёС‚Р° (СЃРїР°Рґ РІ 0)
                         state   <= RECEIVE;
                         bit_cnt <= 7;
                     end else if (tx_start) begin
                         state     <= TRANSMIT;
                         shift_reg <= data_out;
-                        bit_cnt   <= 9; // Старт + 8 бит + стоп
+                        bit_cnt   <= 9; // РЎС‚Р°СЂС‚ + 8 Р±РёС‚ + СЃС‚РѕРї
                     end
                 end
 
                 RECEIVE: begin
-                    if (clk_div == 434) begin // Середина бита на 115200 бод при 50МГц
+                    if (clk_div == 434) begin // РЎРµСЂРµРґРёРЅР° Р±РёС‚Р° РЅР° 115200 Р±РѕРґ РїСЂРё 50РњР“С†
                         clk_div <= '0;
                         shift_reg[0] <= uart_rxd;
                         
                         if (bit_cnt == 0) begin
                             state <= IDLE;
                             data_in <= shift_reg;
-                            if (shift_reg == 8'h3C)      data_ready <= 3'h1; // Флаг: Принят маркер адреса
-                            else if (shift_reg == 8'h1A) data_ready <= 3'h2; // Флаг: Принята команда записи
-                            else if (shift_reg == 8'h2B) data_ready <= 3'h3; // Флаг: Принята команда чтения
-                            else                         data_ready <= 3'h4; // Флаг: Приняты транзитные данные чистых векторов
+                            if (shift_reg == 8'h3C)      data_ready <= 3'h1; // Р¤Р»Р°Рі: РџСЂРёРЅСЏС‚ РјР°СЂРєРµСЂ Р°РґСЂРµСЃР°
+                            else if (shift_reg == 8'h1A) data_ready <= 3'h2; // Р¤Р»Р°Рі: РџСЂРёРЅСЏС‚Р° РєРѕРјР°РЅРґР° Р·Р°РїРёСЃРё
+                            else if (shift_reg == 8'h2B) data_ready <= 3'h3; // Р¤Р»Р°Рі: РџСЂРёРЅСЏС‚Р° РєРѕРјР°РЅРґР° С‡С‚РµРЅРёСЏ
+                            else                         data_ready <= 3'h4; // Р¤Р»Р°Рі: РџСЂРёРЅСЏС‚С‹ С‚СЂР°РЅР·РёС‚РЅС‹Рµ РґР°РЅРЅС‹Рµ С‡РёСЃС‚С‹С… РІРµРєС‚РѕСЂРѕРІ
                         end else begin
                             shift_reg <= {shift_reg[6:0], 1'b0};
                             bit_cnt   <= bit_cnt - 1'b1;

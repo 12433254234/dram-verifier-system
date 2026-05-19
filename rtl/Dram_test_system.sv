@@ -1,20 +1,20 @@
 module Dram_test_system(
-    input logic        clk,				//Тактовый генратор (50 МГц)     
-    input logic        rst_n,       	//Асинхронный сброс
-    input logic        uart_rxd,    	//Вход UART
-    output logic       uart_txd,    	//Выход UART
+    input logic        clk,				//РўР°РєС‚РѕРІС‹Р№ РіРµРЅСЂР°С‚РѕСЂ (50 РњР“С†)     
+    input logic        rst_n,       	//РђСЃРёРЅС…СЂРѕРЅРЅС‹Р№ СЃР±СЂРѕСЃ
+    input logic        uart_rxd,    	//Р’С…РѕРґ UART
+    output logic       uart_txd,    	//Р’С‹С…РѕРґ UART
     
-    output logic [15:0] dram_addr,  	//Шина адреса
-    inout  wire  [7:0]  dram_data,  	//Двунаправленная шина
-    output logic        dram_ras_n, 	//Строб строки
-    output logic        dram_cas_n, 	//Строб столбца
-    output logic        dram_we_n   	//Разрешение на запись
+    output logic [15:0] dram_addr,  	//РЁРёРЅР° Р°РґСЂРµСЃР°
+    inout  wire  [7:0]  dram_data,  	//Р”РІСѓРЅР°РїСЂР°РІР»РµРЅРЅР°СЏ С€РёРЅР°
+    output logic        dram_ras_n, 	//РЎС‚СЂРѕР± СЃС‚СЂРѕРєРё
+    output logic        dram_cas_n, 	//РЎС‚СЂРѕР± СЃС‚РѕР»Р±С†Р°
+    output logic        dram_we_n   	//Р Р°Р·СЂРµС€РµРЅРёРµ РЅР° Р·Р°РїРёСЃСЊ
 );
 
-    logic [2:0] data_ready; 			//Флаг текушей команды(0 - ожидание, 1 - адрес, 2 - запись, 3 - чтение)
-    logic [7:0] data_in;    			//Текушие данные из UART в контроллер DRAM
-    logic [7:0] data_out;   			//Данные из DRAM для отправки обратно в ПК
-    logic       tx_start;   			//Импульс запуска передачи UART
+    logic [2:0] data_ready; 			//Р¤Р»Р°Рі С‚РµРєСѓС€РµР№ РєРѕРјР°РЅРґС‹(0 - РѕР¶РёРґР°РЅРёРµ, 1 - Р°РґСЂРµСЃ, 2 - Р·Р°РїРёСЃСЊ, 3 - С‡С‚РµРЅРёРµ)
+    logic [7:0] data_in;    			//РўРµРєСѓС€РёРµ РґР°РЅРЅС‹Рµ РёР· UART РІ РєРѕРЅС‚СЂРѕР»Р»РµСЂ DRAM
+    logic [7:0] data_out;   			//Р”Р°РЅРЅС‹Рµ РёР· DRAM РґР»СЏ РѕС‚РїСЂР°РІРєРё РѕР±СЂР°С‚РЅРѕ РІ РџРљ
+    logic       tx_start;   			//РРјРїСѓР»СЊСЃ Р·Р°РїСѓСЃРєР° РїРµСЂРµРґР°С‡Рё UART
 
 
     UART_INTERFACE u0 (
