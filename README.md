@@ -43,6 +43,10 @@
 Разработана двухстороняя печатная плата, а так же жгут и плата под жгут(на данный момент не добаленны в проект!)
 ![](docs/printed_circuit_board.jpg)
 
+Автор
+Антонов Тимур Романович
+2025
+
 # MU-475 Memory Module Tester for Kongsberg NC2000 CNC
 
 A hardware and software tool for testing `MU-475` dynamic RAM modules used in the `Kongsberg NC2000` CNC controller of the `TDP 70/110` lathe.
@@ -85,3 +89,7 @@ The `MU-475` memory module uses `2107В` DRAM chips (4K×1 bit, +12V / +5V / -5V
 ## Printed circuit board
 
 A two-sided printed circuit board has been developed, as well as a harness and a harness board (currently not included in the project!)
+
+Author
+Antonov Timur Romanovich
+2025
