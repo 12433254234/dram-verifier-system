@@ -44,8 +44,7 @@
 ![](docs/printed_circuit_board.jpg)
 
 Автор
-Антонов Тимур Романович
-2025
+Антонов Тимур Романович/2025/Email:antonov.timur.com@Gmail.com
 
 # MU-475 Memory Module Tester for Kongsberg NC2000 CNC
 
@@ -91,5 +90,4 @@ The `MU-475` memory module uses `2107В` DRAM chips (4K×1 bit, +12V / +5V / -5V
 A two-sided printed circuit board has been developed, as well as a harness and a harness board (currently not included in the project!)
 
 Author
-Antonov Timur Romanovich
-2025
+Antonov Timur Romanovich/2025/Email:antonov.timur.com@Gmail.com
