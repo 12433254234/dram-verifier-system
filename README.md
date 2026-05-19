@@ -41,7 +41,7 @@
 ## Печатная плата
 
 Разработана двухстороняя печатная плата, а так же жгут и плата под жгут(на данный момент не добаленны в проект!)
-![](docs/Printed circuit board and wiring harness.png)
+![](docs/printed_circuit_board.jpg)
 
 # MU-475 Memory Module Tester for Kongsberg NC2000 CNC
 
