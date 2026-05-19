@@ -1,0 +1,23 @@
+# Временные файлы Quartus Prime (ищет в любых подпапках)
+**/db/
+**/incremental_db/
+**/output_files/
+**/greybox_tmp/
+**/simulation/
+*.sof
+*.pof
+*.summary
+*.rpt
+*.qws
+*.jdi
+*.pin
+*.done
+*.bak
+
+# Временные файлы компиляции C++ и IDE
+*.exe
+*.o
+*.obj
+.vscode/
+.idea/
+cmake-build-debug/
