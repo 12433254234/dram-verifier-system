@@ -1,0 +1,47 @@
+module Dram_test_system(
+    input logic        clk,				//Тактовый генратор (50 МГц)     
+    input logic        rst_n,       	//Асинхронный сброс
+    input logic        uart_rxd,    	//Вход UART
+    output logic       uart_txd,    	//Выход UART
+    
+    output logic [15:0] dram_addr,  	//Шина адреса
+    inout  wire  [7:0]  dram_data,  	//Двунаправленная шина
+    output logic        dram_ras_n, 	//Строб строки
+    output logic        dram_cas_n, 	//Строб столбца
+    output logic        dram_we_n   	//Разрешение на запись
+);
+
+    // Внутренние соединительные сигналы
+    logic [2:0] data_ready; 			//Флаг текушей команды(0 - ожидание, 1 - адрес, 2 - запись, 3 - чтение)
+    logic [7:0] data_in;    			//Текушие данные из UART в контроллер DRAM
+    logic [7:0] data_out;   			//Данные из DRAM для отправки обратно в ПК
+    logic       tx_start;   			//Импульс запуска передачи UART
+
+
+    UART_INTERFACE u0 (
+        .clk        (clk),
+        .rst_n      (rst_n),
+        .uart_rxd   (uart_rxd),
+        .uart_txd   (uart_txd),
+        .data_ready (data_ready),
+        .data_in    (data_in),
+        .data_out   (data_out),
+        .tx_start   (tx_start)
+    );
+
+
+    DRAM_CYCLE_CTRL u1 (
+        .clk        (clk),
+        .rst_n      (rst_n),
+        .data_ready (data_ready),
+        .data_in    (data_in),
+        .data_out   (data_out),
+        .tx_start   (tx_start),
+        .dram_addr  (dram_addr),
+        .dram_data  (dram_data),
+        .dram_ras_n (dram_ras_n),
+        .dram_cas_n (dram_cas_n),
+        .dram_we_n  (dram_we_n)
+    );
+
+endmodule
